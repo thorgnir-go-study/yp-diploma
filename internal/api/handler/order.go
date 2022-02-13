@@ -39,6 +39,7 @@ func createOrderHandler(service order.UseCase) http.HandlerFunc {
 		orderNumber, err := entity.StringToOrderNumber(string(orderNumberRaw))
 		if err != nil {
 			http.Error(w, http.StatusText(http.StatusUnprocessableEntity), http.StatusUnprocessableEntity)
+			return
 		}
 
 		_, err = service.CreateOrder(r.Context(), orderNumber, claims.UserID)
