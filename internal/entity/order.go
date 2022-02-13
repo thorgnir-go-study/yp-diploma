@@ -21,18 +21,11 @@ func NewOrder(userID ID, orderNumber OrderNumber) (*Order, error) {
 	if err != nil {
 		return nil, err
 	}
-	if err != nil {
-		return nil, err
-	}
-	orderStatus, err := StringToOrderStatus("NEW")
-	if err != nil {
-		return nil, err
-	}
 	o := &Order{
 		ID:         id,
 		UserID:     userID,
 		Number:     orderNumber,
-		Status:     orderStatus,
+		Status:     OrderStatusNew,
 		UploadedAt: time.Now(),
 		UpdatedAt:  time.Now(),
 	}

@@ -4,7 +4,6 @@ import (
 	"context"
 	"github.com/shopspring/decimal"
 	"github.com/thorgnir-go-study/yp-diploma/internal/entity"
-	"time"
 )
 
 type Service struct {
@@ -32,37 +31,18 @@ func (s *Service) GetUserOrders(ctx context.Context, userID entity.ID) ([]*entit
 	return s.repo.List(ctx, userID)
 }
 
-func (s *Service) SetOrderAccrualAndStatus(ctx context.Context, orderNumber entity.OrderNumber, accrual decimal.NullDecimal, status entity.OrderStatus) error {
-	order, err := s.repo.GetByOrderNumber(ctx, orderNumber)
-	if err != nil {
-		return err
-	}
-	order.UpdatedAt = time.Now()
-	order.Accrual = accrual
-	order.Status = status
-	err = order.Validate()
-	if err != nil {
-		return err
-	}
-	err = s.repo.Update(ctx, *order)
-	return err
+func (s *Service) SetOrderAccrualAndStatus(ctx context.Context, orderID entity.ID, accrual decimal.NullDecimal, status entity.OrderStatus) error {
+	return s.repo.SetOrderAccrualAndStatus(ctx, orderID, accrual, status)
 }
 
 func (s *Service) GetAccrualsSum(ctx context.Context, userID entity.ID) (decimal.NullDecimal, error) {
 	return s.repo.GetAccrualsSum(ctx, userID)
 }
 
-func (s *Service) SetOrderStatus(ctx context.Context, orderNumber entity.OrderNumber, status entity.OrderStatus) error {
-	order, err := s.repo.GetByOrderNumber(ctx, orderNumber)
-	if err != nil {
-		return err
-	}
-	order.UpdatedAt = time.Now()
-	order.Status = status
-	err = order.Validate()
-	if err != nil {
-		return err
-	}
-	err = s.repo.Update(ctx, *order)
-	return err
+func (s *Service) SetOrderStatus(ctx context.Context, orderID entity.ID, status entity.OrderStatus) error {
+	return s.repo.SetOrderStatus(ctx, orderID, status)
+}
+
+func (s *Service) GetNewOrders(ctx context.Context) ([]*entity.Order, error) {
+	return s.repo.GetNewOrders(ctx)
 }

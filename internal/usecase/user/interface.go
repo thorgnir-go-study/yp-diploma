@@ -6,7 +6,6 @@ import (
 )
 
 type Reader interface {
-	Get(ctx context.Context, id entity.ID) (*entity.User, error)
 	GetByLogin(ctx context.Context, login string) (*entity.User, error)
 }
 

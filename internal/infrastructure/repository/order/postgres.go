@@ -36,12 +36,22 @@ func (p PostgresOrderRepository) GetAccrualsSum(ctx context.Context, userID enti
 	panic("implement me")
 }
 
+func (p PostgresOrderRepository) GetNewOrders(ctx context.Context) ([]*entity.Order, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
 func (p PostgresOrderRepository) Create(ctx context.Context, order entity.Order) (entity.ID, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (p PostgresOrderRepository) Update(ctx context.Context, order entity.Order) error {
+func (p PostgresOrderRepository) SetOrderAccrualAndStatus(ctx context.Context, orderID entity.ID, accrual decimal.NullDecimal, status entity.OrderStatus) error {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (p PostgresOrderRepository) SetOrderStatus(ctx context.Context, orderID entity.ID, status entity.OrderStatus) error {
 	//TODO implement me
 	panic("implement me")
 }

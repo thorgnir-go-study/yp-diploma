@@ -15,3 +15,7 @@ func (n OrderNumber) Validate() error {
 	// TODO: вставить проверку по Луну
 	return nil
 }
+
+func (n OrderNumber) String() string {
+	return string(n)
+}

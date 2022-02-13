@@ -3,8 +3,26 @@ package accrual_processor
 import (
 	"context"
 	"github.com/thorgnir-go-study/yp-diploma/internal/entity"
+	"time"
 )
 
+type Reader interface {
+	GetTasksToRun(ctx context.Context) ([]*entity.ProcessingTask, error)
+}
+
+type Writer interface {
+	CreateTask(ctx context.Context, task *entity.ProcessingTask) error
+	CreateTasks(ctx context.Context, tasks []*entity.ProcessingTask) error
+	SetTaskStatus(ctx context.Context, taskId entity.ID, status entity.ProcessingTaskStatus) error
+	RescheduleTask(ctx context.Context, taskId entity.ID, nextRun time.Time) error
+	CleanProcessedTasks(ctx context.Context) error
+}
+
+type Repository interface {
+	Reader
+	Writer
+}
+
 type UseCase interface {
-	AddOrderToProcessingQueue(ctx context.Context, order *entity.Order) error
+	Start() error
 }
