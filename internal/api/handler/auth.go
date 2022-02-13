@@ -2,7 +2,7 @@ package handler
 
 import (
 	"github.com/go-chi/chi/v5"
-	"github.com/thorgnir-go-study/yp-diploma/internal/api/middleware"
+	"github.com/thorgnir-go-study/yp-diploma/internal/api/middleware/jwt"
 	"github.com/thorgnir-go-study/yp-diploma/internal/entity"
 	"github.com/thorgnir-go-study/yp-diploma/internal/pkg/auth"
 )
@@ -20,5 +20,5 @@ func (s *Auth) GenerateToken(userID entity.ID) (string, error) {
 }
 
 func (s *Auth) RegisterAuthMiddleware(r chi.Router) {
-	r.Use(middleware.AuthMiddleware(s.jwtWrapper))
+	r.Use(jwt.AuthMiddleware(s.jwtWrapper))
 }

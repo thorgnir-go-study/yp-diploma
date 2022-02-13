@@ -40,7 +40,7 @@ func NewRouter(authService *handler.Auth, userService user.UseCase, ordersServic
 	r.Group(func(r chi.Router) {
 		authService.RegisterAuthMiddleware(r)
 
-		//routes.Post("/api/user/orders", ordersService.CreateOrderHandler())
+		handler.MakeOrderHandlers(r, ordersService)
 	})
 
 	return r

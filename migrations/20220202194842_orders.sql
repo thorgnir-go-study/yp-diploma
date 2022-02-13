@@ -14,7 +14,7 @@ INSERT INTO gophermart.order_status (id, name) VALUES (4, 'PROCESSED');
 
 CREATE TABLE IF NOT EXISTS gophermart."order"
 (
-    id bigint NOT NULL GENERATED ALWAYS AS IDENTITY,
+    id uuid NOT NULL,
     order_number character varying NOT NULL,
     user_id uuid NOT NULL,
     status_id integer NOT NULL,

@@ -46,9 +46,9 @@ WHERE login=$1`, login); err != nil {
 
 func (p PostgresUserRepository) Create(ctx context.Context, e entity.User) (entity.ID, error) {
 	var userID uuid.UUID
-	err := p.dbpool.QueryRow(ctx, `INSERT INTO gophermart.users (login, password) 
-VALUES ($1, $2) 
-RETURNING id`, e.Login, e.Password).Scan(&userID)
+	err := p.dbpool.QueryRow(ctx, `INSERT INTO gophermart.users (id, login, password) 
+VALUES ($1, $2, $3) 
+RETURNING id`, e.ID, e.Login, e.Password).Scan(&userID)
 
 	if err != nil {
 		var pgErr *pgconn.PgError

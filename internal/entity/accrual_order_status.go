@@ -38,7 +38,7 @@ func (s *AccrualOrderStatus) String() string {
 	if s == nil {
 		return "nil"
 	}
-	return accrualOrderStatusStringValues[*s]
+	return accrualOrderStatusStringValues[*s-1]
 }
 
 func (s AccrualOrderStatus) Validate() error {

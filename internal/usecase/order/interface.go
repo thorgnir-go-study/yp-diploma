@@ -7,8 +7,8 @@ import (
 )
 
 type Reader interface {
-	Get(ctx context.Context, orderID entity.ID) (*entity.Order, error)
-	GetByOrderNumber(ctx context.Context, orderNumber entity.OrderNumber) (*entity.Order, error)
+	//Get(ctx context.Context, orderID entity.ID) (*entity.Order, error)
+	//GetByOrderNumber(ctx context.Context, orderNumber entity.OrderNumber) (*entity.Order, error)
 	List(ctx context.Context, userID entity.ID) ([]*entity.Order, error)
 	GetAccrualsSum(ctx context.Context, userID entity.ID) (decimal.NullDecimal, error)
 	GetNewOrders(ctx context.Context) ([]*entity.Order, error)

@@ -35,7 +35,7 @@ func StringToOrderStatus(raw string) (OrderStatus, error) {
 }
 
 func (s OrderStatus) String() string {
-	return orderStatusStringValues[s]
+	return orderStatusStringValues[s-1]
 }
 
 func (s OrderStatus) Validate() error {

@@ -8,7 +8,7 @@ CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
 CREATE TABLE IF NOT EXISTS gophermart.users
 (
-    id uuid NOT NULL DEFAULT uuid_generate_v4(),
+    id uuid NOT NULL,
     login character varying  NOT NULL,
     password character varying NOT NULL,
     CONSTRAINT users_pkey PRIMARY KEY (id),
