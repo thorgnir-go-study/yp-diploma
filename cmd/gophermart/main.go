@@ -12,8 +12,10 @@ import (
 	"github.com/thorgnir-go-study/yp-diploma/internal/config"
 	orderRepository "github.com/thorgnir-go-study/yp-diploma/internal/infrastructure/repository/order"
 	userRepository "github.com/thorgnir-go-study/yp-diploma/internal/infrastructure/repository/user"
+	withdrawalsRepository "github.com/thorgnir-go-study/yp-diploma/internal/infrastructure/repository/withdrawal"
 	"github.com/thorgnir-go-study/yp-diploma/internal/usecase/order"
 	"github.com/thorgnir-go-study/yp-diploma/internal/usecase/user"
+	"github.com/thorgnir-go-study/yp-diploma/internal/usecase/withdrawal"
 
 	shopspring "github.com/jackc/pgtype/ext/shopspring-numeric"
 
@@ -46,7 +48,12 @@ func main() {
 		log.Fatal().Err(err).Msg("Error while creating orders service")
 	}
 
-	srv := api.NewServer(*cfg, userService, orderService)
+	withdrawalsService, err := createWithdrawalsService(dbpool, orderService)
+	if err != nil {
+		log.Fatal().Err(err).Msg("Error while creating withdrawals service")
+	}
+
+	srv := api.NewServer(*cfg, userService, orderService, withdrawalsService)
 
 	errC, err := run(srv)
 	if err != nil {
@@ -88,6 +95,12 @@ func createUserService(dbpool *pgxpool.Pool) (user.UseCase, error) {
 	userRepo := userRepository.NewPostgresUserRepository(dbpool)
 
 	srv := user.NewService(userRepo)
+	return srv, nil
+}
+
+func createWithdrawalsService(dbpool *pgxpool.Pool, orderService order.UseCase) (withdrawal.UseCase, error) {
+	withdrawalRepo := withdrawalsRepository.NewPostgresWithdrawalRepository(dbpool)
+	srv := withdrawal.NewService(withdrawalRepo, orderService)
 	return srv, nil
 }
 

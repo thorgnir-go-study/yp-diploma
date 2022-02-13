@@ -8,13 +8,14 @@ import (
 	"github.com/thorgnir-go-study/yp-diploma/internal/pkg/auth"
 	"github.com/thorgnir-go-study/yp-diploma/internal/usecase/order"
 	"github.com/thorgnir-go-study/yp-diploma/internal/usecase/user"
+	"github.com/thorgnir-go-study/yp-diploma/internal/usecase/withdrawal"
 	"net/http"
 )
 
-func NewServer(cfg config.Config, userService user.UseCase, ordersService order.UseCase) *http.Server {
+func NewServer(cfg config.Config, userService user.UseCase, ordersService order.UseCase, withdrawalsService withdrawal.UseCase) *http.Server {
 	jwtWrapper := auth.NewJwtWrapper(cfg.JWTSecret, "gophermart", 24)
 	authService := handler.NewAuth(jwtWrapper)
-	router := NewRouter(authService, userService, ordersService)
+	router := NewRouter(authService, userService, ordersService, withdrawalsService)
 	server := &http.Server{
 		Addr:    cfg.ServerAddress,
 		Handler: router,
@@ -23,7 +24,7 @@ func NewServer(cfg config.Config, userService user.UseCase, ordersService order.
 	return server
 }
 
-func NewRouter(authService *handler.Auth, userService user.UseCase, ordersService order.UseCase) chi.Router {
+func NewRouter(authService *handler.Auth, userService user.UseCase, ordersService order.UseCase, withdrawalsService withdrawal.UseCase) chi.Router {
 	r := chi.NewRouter()
 
 	r.Use(middleware.Logger)
@@ -41,6 +42,7 @@ func NewRouter(authService *handler.Auth, userService user.UseCase, ordersServic
 		authService.RegisterAuthMiddleware(r)
 
 		handler.MakeOrderHandlers(r, ordersService)
+		handler.MakeWithdrawalHandlers(r, withdrawalsService, ordersService)
 	})
 
 	return r

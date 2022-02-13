@@ -45,6 +45,7 @@ ORDER BY uploaded_at ASC
 			return nil, nil
 		}
 		log.Error().Err(err).Msg("Error while getting user orders")
+		return nil, err
 	}
 
 	result := make([]*entity.Order, len(orders))
@@ -57,13 +58,34 @@ ORDER BY uploaded_at ASC
 }
 
 func (p PostgresOrderRepository) GetAccrualsSum(ctx context.Context, userID entity.ID) (decimal.NullDecimal, error) {
-	//TODO implement me
-	panic("implement me")
+	var accrual decimal.NullDecimal
+	if err := p.dbpool.QueryRow(ctx, `SELECT SUM(accrual) FROM gophermart.order WHERE user_id = $1`, userID).Scan(&accrual); err != nil {
+		return accrual, err
+	}
+
+	return accrual, nil
 }
 
 func (p PostgresOrderRepository) GetNewOrders(ctx context.Context) ([]*entity.Order, error) {
-	//TODO implement me
-	panic("implement me")
+	var orders []*dbEntity
+	if err := pgxscan.Select(ctx, p.dbpool, &orders, `
+SELECT id, order_number, user_id, status_id, accrual, uploaded_at, updated_at 
+FROM gophermart.order 
+WHERE status_id = $1
+`, entity.OrderStatusNew); err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, nil
+		}
+		log.Error().Err(err).Msg("Error while getting new orders")
+		return nil, err
+	}
+
+	result := make([]*entity.Order, len(orders))
+	for i := range orders {
+		result[i] = mapOrder(orders[i])
+	}
+
+	return result, nil
 }
 
 func (p PostgresOrderRepository) Create(ctx context.Context, order entity.Order) (entity.ID, error) {
@@ -96,13 +118,32 @@ WHERE order_number = $2
 }
 
 func (p PostgresOrderRepository) SetOrderAccrualAndStatus(ctx context.Context, orderID entity.ID, accrual decimal.NullDecimal, status entity.OrderStatus) error {
-	//TODO implement me
-	panic("implement me")
+	if _, err := p.dbpool.Exec(ctx,
+		`UPDATE gophermart."order" SET accrual = $1, status_id = $2, updated_at = $3 WHERE id = $4`,
+		accrual, status, time.Now(), orderID); err != nil {
+		log.Error().Err(err).
+			Str("orderId", orderID.String()).
+			Str("status", status.String()).
+			Str("accrual", accrual.Decimal.String()).
+			Msg("Error while setting accrual and status")
+		return err
+	}
+
+	return nil
 }
 
 func (p PostgresOrderRepository) SetOrderStatus(ctx context.Context, orderID entity.ID, status entity.OrderStatus) error {
-	//TODO implement me
-	panic("implement me")
+	if _, err := p.dbpool.Exec(ctx,
+		`UPDATE gophermart."order" SET status_id = $1, updated_at = $2 WHERE id = $3`,
+		status, time.Now(), orderID); err != nil {
+		log.Error().Err(err).
+			Str("orderId", orderID.String()).
+			Str("status", status.String()).
+			Msg("Error while setting order status")
+		return err
+	}
+
+	return nil
 }
 
 func mapOrder(dbOrder *dbEntity) *entity.Order {

@@ -7,18 +7,20 @@ import (
 
 type Withdrawal struct {
 	ID          ID
+	UserID      ID
 	OrderNumber OrderNumber
 	Sum         decimal.Decimal
 	ProcessedAt time.Time
 }
 
-func NewWithdrawal(orderNumber OrderNumber, sum decimal.Decimal) (*Withdrawal, error) {
+func NewWithdrawal(userID ID, orderNumber OrderNumber, sum decimal.Decimal) (*Withdrawal, error) {
 	id, err := NewID()
 	if err != nil {
 		return nil, err
 	}
 	w := &Withdrawal{
 		ID:          id,
+		UserID:      userID,
 		OrderNumber: orderNumber,
 		Sum:         sum,
 		ProcessedAt: time.Now(),

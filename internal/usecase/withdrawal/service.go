@@ -14,8 +14,9 @@ type Service struct {
 	userMX  sync.Map
 }
 
-func NewService(repo Repository) *Service {
-	return &Service{repo: repo}
+func NewService(repo Repository, orderUC order.UseCase) *Service {
+
+	return &Service{repo: repo, orderUC: orderUC}
 }
 
 func (s *Service) CreateWithdrawal(ctx context.Context, userID entity.ID, orderNumber entity.OrderNumber, sum decimal.Decimal) error {
@@ -47,7 +48,7 @@ func (s *Service) CreateWithdrawal(ctx context.Context, userID entity.ID, orderN
 		return entity.ErrInsufficientBalance
 	}
 
-	withdrawal, err := entity.NewWithdrawal(orderNumber, sum)
+	withdrawal, err := entity.NewWithdrawal(userID, orderNumber, sum)
 	if err != nil {
 		return err
 	}
