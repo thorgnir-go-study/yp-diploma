@@ -5,7 +5,6 @@ import (
 	"errors"
 	"github.com/go-chi/chi/v5"
 	"github.com/rs/zerolog/log"
-	"github.com/shopspring/decimal"
 	"github.com/thorgnir-go-study/yp-diploma/internal/api/middleware/jwt"
 	"github.com/thorgnir-go-study/yp-diploma/internal/entity"
 	"github.com/thorgnir-go-study/yp-diploma/internal/usecase/order"
@@ -15,10 +14,10 @@ import (
 )
 
 type userOrder struct {
-	Number     string           `json:"number"`
-	Status     string           `json:"status"`
-	Accrual    *decimal.Decimal `json:"accrual,omitempty"`
-	UploadedAt time.Time        `json:"uploaded_at"`
+	Number     string    `json:"number"`
+	Status     string    `json:"status"`
+	Accrual    *float64  `json:"accrual,omitempty"`
+	UploadedAt time.Time `json:"uploaded_at"`
 }
 
 func createOrderHandler(service order.UseCase) http.HandlerFunc {
@@ -86,9 +85,10 @@ func listOrdersHandler(service order.UseCase) http.HandlerFunc {
 		ordersResult := make([]userOrder, len(orders))
 		for i := range orders {
 			o := orders[i]
-			var accrual *decimal.Decimal
+			var accrual *float64
 			if o.Accrual.Valid {
-				accrual = &o.Accrual.Decimal
+				floatAcc := o.Accrual.Decimal.InexactFloat64()
+				accrual = &floatAcc
 			}
 			ordersResult[i] = userOrder{
 				Number:     o.Number.String(),

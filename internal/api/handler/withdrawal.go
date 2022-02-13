@@ -27,7 +27,7 @@ type createWithdrawalRequest struct {
 }
 
 type balanceResponse struct {
-	Accruals  float64 `json:"current"`
+	Current   float64 `json:"current"`
 	Withdrawn float64 `json:"withdrawn"`
 }
 
@@ -137,9 +137,10 @@ func balanceHandler(withdrawalsService withdrawal.UseCase, ordersService order.U
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			return
 		}
+		current := accrualsSum.Decimal.Sub(withdrawalsSum.Decimal)
 
 		result := &balanceResponse{
-			Accruals:  accrualsSum.Decimal.InexactFloat64(),
+			Current:   current.InexactFloat64(),
 			Withdrawn: withdrawalsSum.Decimal.InexactFloat64(),
 		}
 
