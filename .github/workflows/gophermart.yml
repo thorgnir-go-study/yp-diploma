@@ -30,6 +30,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Run migrations
+        run: |
+            (cd cmd/dbmigrate && ./dbmigrate-linux-amd64 -database_uri="postgresql://postgres:postgres@postgres/praktikum?sslmode=disable")
+
       - name: Download autotests binaries
         uses: robinraju/release-downloader@v1.2
         with:
