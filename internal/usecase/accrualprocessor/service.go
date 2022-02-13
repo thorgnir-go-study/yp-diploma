@@ -35,7 +35,7 @@ func (s *Service) Start() error {
 	}
 	s.scheduler.Clear()
 	_, _ = s.scheduler.Every(3).Seconds().Do(func() { s.scheduleNewOrders(context.Background()) })
-	_, _ = s.scheduler.Every(3).Seconds().Do(func() { s.getJobsToRun(context.Background()) })
+	_, _ = s.scheduler.Every(1).Seconds().Do(func() { s.getJobsToRun(context.Background()) })
 	_, _ = s.scheduler.Every(10).Seconds().Do(func() { s.cleanProcessedTasks(context.Background()) })
 	s.scheduler.StartAsync()
 	return nil
@@ -62,6 +62,13 @@ func (s *Service) scheduleNewOrders(ctx context.Context) {
 		if err != nil {
 			log.Error().Err(err).Msg("Error while creating new processing tasks in repo")
 			return
+		}
+		for i := range newOrders {
+			o := *newOrders[i]
+			err = s.orderUC.SetOrderStatus(ctx, o.ID, entity.OrderStatusProcessing)
+			if err != nil {
+				log.Error().Err(err).Str("orderID", o.ID.String()).Msg("Error while marking order as processing")
+			}
 		}
 	}
 
@@ -99,6 +106,7 @@ func (s *Service) startWorkers(ctx context.Context, workersCount int) chan<- ent
 					log.Info().Str("worker", workerID).Msg("stopping accruals processing worker")
 				case req := <-ch:
 					go func() {
+						log.Debug().Msg("New job to do")
 						innerCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
 						defer cancel()
 						err := s.repo.SetTaskStatus(ctx, req.ID, entity.ProcessingTaskStatusProcessing)
@@ -119,6 +127,14 @@ func (s *Service) startWorkers(ctx context.Context, workersCount int) chan<- ent
 								Str("orderNumber", req.OrderNumber.String()).
 								Msg("error while getting order accrual")
 
+							_ = s.repo.RescheduleTask(ctx, req.ID, calcNextRun())
+							return
+						}
+						if result == nil {
+							log.Info().
+								Str("worker", workerID).
+								Str("orderNumber", req.OrderNumber.String()).
+								Msg("no info about order in accrual system")
 							_ = s.repo.RescheduleTask(ctx, req.ID, calcNextRun())
 							return
 						}

@@ -10,9 +10,13 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/thorgnir-go-study/yp-diploma/internal/api"
 	"github.com/thorgnir-go-study/yp-diploma/internal/config"
+	accrualRepository "github.com/thorgnir-go-study/yp-diploma/internal/infrastructure/repository/accrual"
+	accrualProcessorRepository "github.com/thorgnir-go-study/yp-diploma/internal/infrastructure/repository/accrualprocessor"
 	orderRepository "github.com/thorgnir-go-study/yp-diploma/internal/infrastructure/repository/order"
 	userRepository "github.com/thorgnir-go-study/yp-diploma/internal/infrastructure/repository/user"
 	withdrawalsRepository "github.com/thorgnir-go-study/yp-diploma/internal/infrastructure/repository/withdrawal"
+	"github.com/thorgnir-go-study/yp-diploma/internal/usecase/accrual"
+	"github.com/thorgnir-go-study/yp-diploma/internal/usecase/accrualprocessor"
 	"github.com/thorgnir-go-study/yp-diploma/internal/usecase/order"
 	"github.com/thorgnir-go-study/yp-diploma/internal/usecase/user"
 	"github.com/thorgnir-go-study/yp-diploma/internal/usecase/withdrawal"
@@ -53,6 +57,20 @@ func main() {
 		log.Fatal().Err(err).Msg("Error while creating withdrawals service")
 	}
 
+	accrualService, err := createAccrualService(*cfg)
+	if err != nil {
+		log.Fatal().Err(err).Msg("Error while creating accrual service")
+	}
+
+	accrualProcessorSrv, err := createAccrualProcessorService(dbpool, accrualService, orderService)
+	if err != nil {
+		log.Fatal().Err(err).Msg("Error while creating accrual processor service")
+	}
+	err = accrualProcessorSrv.Start()
+	if err != nil {
+		log.Fatal().Err(err).Msg("Error while starting accrual processor service")
+	}
+
 	srv := api.NewServer(*cfg, userService, orderService, withdrawalsService)
 
 	errC, err := run(srv)
@@ -64,6 +82,19 @@ func main() {
 		log.Fatal().Err(err).Msg("Error while running")
 	}
 
+}
+
+func createAccrualService(cfg config.Config) (accrual.UseCase, error) {
+	accrualRepo := accrualRepository.NewWebClient(cfg)
+	srv := accrual.NewService(accrualRepo)
+	return srv, nil
+}
+
+func createAccrualProcessorService(dbpool *pgxpool.Pool, accrualService accrual.UseCase, orderService order.UseCase) (accrualprocessor.UseCase, error) {
+	accrualProcessorRepo := accrualProcessorRepository.NewPostgresAccrualProcessorRepository(dbpool)
+	srv := accrualprocessor.NewService(accrualProcessorRepo, accrualService, orderService)
+
+	return srv, nil
 }
 
 func createDBPool(cfg config.Config) (*pgxpool.Pool, error) {

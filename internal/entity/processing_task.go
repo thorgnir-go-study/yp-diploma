@@ -8,7 +8,7 @@ type ProcessingTask struct {
 	OrderNumber OrderNumber
 	ToRunAt     time.Time
 	Status      ProcessingTaskStatus
-	UpdatedAt   *time.Time
+	UpdatedAt   time.Time
 }
 
 func NewProcessingTask(orderID ID, orderNumber OrderNumber, runAt time.Time) (*ProcessingTask, error) {
@@ -22,7 +22,7 @@ func NewProcessingTask(orderID ID, orderNumber OrderNumber, runAt time.Time) (*P
 		OrderNumber: orderNumber,
 		ToRunAt:     runAt,
 		Status:      ProcessingTaskStatusScheduled,
-		UpdatedAt:   nil,
+		UpdatedAt:   time.Now(),
 	}
 
 	return task, nil

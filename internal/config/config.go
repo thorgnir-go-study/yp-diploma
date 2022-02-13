@@ -8,9 +8,9 @@ import (
 )
 
 type Config struct {
-	ServerAddress string `env:"RUN_ADDRESS" envDefault:":8081"`
+	ServerAddress string `env:"RUN_ADDRESS" envDefault:":8080"`
 	DatabaseDSN   string `env:"DATABASE_URI"`
-	AccrualURL    string `env:"ACCRUAL_SYSTEM_ADDRESS"`
+	AccrualURL    string `env:"ACCRUAL_SYSTEM_ADDRESS" envDefault:":8081"`
 	JWTSecret     string `env:"JWT_SECRET" envDefault:"very very secret key"`
 }
 
