@@ -10,4 +10,5 @@ var (
 	ErrInsufficientBalance          = errors.New("insufficient balance")
 	ErrOrderAlreadyRegistered       = errors.New("order already registered")
 	ErrOrderRegisteredByAnotherUser = errors.New("order already registered by another user")
+	ErrInvalidOrderNumber           = errors.New("invalid order number")
 )

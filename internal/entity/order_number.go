@@ -1,5 +1,7 @@
 package entity
 
+import "github.com/ShiraazMoollatjie/goluhn"
+
 type OrderNumber string
 
 func StringToOrderNumber(raw string) (OrderNumber, error) {
@@ -12,7 +14,10 @@ func StringToOrderNumber(raw string) (OrderNumber, error) {
 }
 
 func (n OrderNumber) Validate() error {
-	// TODO: вставить проверку по Луну
+	err := goluhn.Validate(string(n))
+	if err != nil {
+		return ErrInvalidOrderNumber
+	}
 	return nil
 }
 

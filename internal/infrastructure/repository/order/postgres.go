@@ -36,7 +36,10 @@ func (p PostgresOrderRepository) List(ctx context.Context, userID entity.ID) ([]
 	var orders []*dbEntity
 	log.Info().Str("currentUser", userID.String()).Msg("CurrentUser")
 	if err := pgxscan.Select(ctx, p.dbpool, &orders, `
-SELECT id, order_number, user_id, status_id, accrual, uploaded_at, updated_at FROM gophermart.order WHERE user_id = $1
+SELECT id, order_number, user_id, status_id, accrual, uploaded_at, updated_at 
+FROM gophermart.order 
+WHERE user_id = $1 
+ORDER BY uploaded_at ASC
 `, userID); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, nil
@@ -77,7 +80,8 @@ WITH new_order AS (
     RETURNING id, user_id, true as inserted
 ) SELECT * from new_order 
 UNION 
-SELECT id, user_id, false as inserted FROM gophermart."order" WHERE order_number = $2
+SELECT id, user_id, false as inserted FROM gophermart."order" 
+WHERE order_number = $2
 `, order.ID, order.Number.String(), order.UserID, order.Status, order.Accrual, order.UploadedAt, order.UpdatedAt).
 		Scan(&insertedOrderId, &newOrderUserID, &inserted); err != nil {
 		return entity.NilID, err
