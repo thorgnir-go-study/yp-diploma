@@ -32,7 +32,7 @@ func main() {
 	}
 	configureLogger(*cfg)
 
-	dbpool, err := createDbPool(*cfg)
+	dbpool, err := createDBPool(*cfg)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Error while creating dbpool")
 	}
@@ -59,7 +59,7 @@ func main() {
 
 }
 
-func createDbPool(cfg config.Config) (*pgxpool.Pool, error) {
+func createDBPool(cfg config.Config) (*pgxpool.Pool, error) {
 	dbconfig, err := pgxpool.ParseConfig(cfg.DatabaseDSN)
 	if err != nil {
 		return nil, err

@@ -19,10 +19,10 @@ type PostgresOrderRepository struct {
 }
 
 type dbEntity struct {
-	Id         uuid.UUID           `db:"id"`
+	ID         uuid.UUID           `db:"id"`
 	Number     string              `db:"order_number"`
 	UserID     uuid.UUID           `db:"user_id"`
-	StatusId   int                 `db:"status_id"`
+	StatusID   int                 `db:"status_id"`
 	Accrual    decimal.NullDecimal `db:"accrual"`
 	UploadedAt time.Time           `db:"uploaded_at"`
 	UpdatedAt  time.Time           `db:"updated_at"`
@@ -67,7 +67,7 @@ func (p PostgresOrderRepository) GetNewOrders(ctx context.Context) ([]*entity.Or
 }
 
 func (p PostgresOrderRepository) Create(ctx context.Context, order entity.Order) (entity.ID, error) {
-	var insertedOrderId uuid.UUID
+	var insertedOrderID uuid.UUID
 	var newOrderUserID uuid.UUID
 	var inserted bool
 
@@ -83,7 +83,7 @@ UNION
 SELECT id, user_id, false as inserted FROM gophermart."order" 
 WHERE order_number = $2
 `, order.ID, order.Number.String(), order.UserID, order.Status, order.Accrual, order.UploadedAt, order.UpdatedAt).
-		Scan(&insertedOrderId, &newOrderUserID, &inserted); err != nil {
+		Scan(&insertedOrderID, &newOrderUserID, &inserted); err != nil {
 		return entity.NilID, err
 	}
 	if !inserted {
@@ -92,7 +92,7 @@ WHERE order_number = $2
 		}
 		return entity.NilID, entity.ErrOrderRegisteredByAnotherUser
 	}
-	return insertedOrderId, nil
+	return insertedOrderID, nil
 }
 
 func (p PostgresOrderRepository) SetOrderAccrualAndStatus(ctx context.Context, orderID entity.ID, accrual decimal.NullDecimal, status entity.OrderStatus) error {
@@ -107,9 +107,9 @@ func (p PostgresOrderRepository) SetOrderStatus(ctx context.Context, orderID ent
 
 func mapOrder(dbOrder *dbEntity) *entity.Order {
 	orderNumber, _ := entity.StringToOrderNumber(dbOrder.Number)
-	orderStatus := entity.OrderStatus(dbOrder.StatusId)
+	orderStatus := entity.OrderStatus(dbOrder.StatusID)
 	return &entity.Order{
-		ID:         dbOrder.Id,
+		ID:         dbOrder.ID,
 		UserID:     dbOrder.UserID,
 		Number:     orderNumber,
 		Status:     orderStatus,

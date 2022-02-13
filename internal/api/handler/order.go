@@ -97,14 +97,14 @@ func listOrdersHandler(service order.UseCase) http.HandlerFunc {
 			}
 		}
 
-		respJson, err := json.Marshal(ordersResult)
+		respJSON, err := json.Marshal(ordersResult)
 		if err != nil {
 			log.Error().Err(err).Msg("Error while serializing orders list")
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			return
 		}
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		_, err = w.Write(respJson)
+		_, err = w.Write(respJSON)
 		if err != nil {
 			log.Error().Err(err).Msg("write response failed")
 		}

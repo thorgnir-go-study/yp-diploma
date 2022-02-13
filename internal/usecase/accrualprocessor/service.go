@@ -1,4 +1,4 @@
-package accrual_processor
+package accrualprocessor
 
 import (
 	"context"

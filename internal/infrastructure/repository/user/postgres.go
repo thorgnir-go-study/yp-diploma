@@ -16,7 +16,7 @@ type PostgresUserRepository struct {
 	dbpool *pgxpool.Pool
 }
 
-type userDbEntity struct {
+type userDBEntity struct {
 	ID       uuid.UUID `db:"id"`
 	Login    string    `db:"login"`
 	Password string    `db:"password"`
@@ -27,7 +27,7 @@ func NewPostgresUserRepository(dbpool *pgxpool.Pool) user.Repository {
 }
 
 func (p PostgresUserRepository) GetByLogin(ctx context.Context, login string) (*entity.User, error) {
-	var dbEntity userDbEntity
+	var dbEntity userDBEntity
 	if err := pgxscan.Get(ctx, p.dbpool, &dbEntity, `SELECT id, login, password
 FROM gophermart.users
 WHERE login=$1`, login); err != nil {
