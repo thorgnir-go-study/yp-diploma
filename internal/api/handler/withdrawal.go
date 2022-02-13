@@ -16,9 +16,9 @@ import (
 )
 
 type userWithdrawal struct {
-	OrderNumber string          `json:"order"`
-	Sum         decimal.Decimal `json:"sum"`
-	ProcessedAt time.Time       `json:"processed_at"`
+	OrderNumber string    `json:"order"`
+	Sum         float64   `json:"sum"`
+	ProcessedAt time.Time `json:"processed_at"`
 }
 
 type createWithdrawalRequest struct {
@@ -27,8 +27,8 @@ type createWithdrawalRequest struct {
 }
 
 type balanceResponse struct {
-	Accruals  decimal.Decimal `json:"current"`
-	Withdrawn decimal.Decimal `json:"withdrawn"`
+	Accruals  float64 `json:"current"`
+	Withdrawn float64 `json:"withdrawn"`
 }
 
 func listWithdrawalsHandler(service withdrawal.UseCase) http.HandlerFunc {
@@ -56,7 +56,7 @@ func listWithdrawalsHandler(service withdrawal.UseCase) http.HandlerFunc {
 
 			withdrawalsResult[i] = userWithdrawal{
 				OrderNumber: wd.OrderNumber.String(),
-				Sum:         wd.Sum,
+				Sum:         wd.Sum.InexactFloat64(),
 				ProcessedAt: wd.ProcessedAt,
 			}
 		}
@@ -139,8 +139,8 @@ func balanceHandler(withdrawalsService withdrawal.UseCase, ordersService order.U
 		}
 
 		result := &balanceResponse{
-			Accruals:  accrualsSum.Decimal,
-			Withdrawn: withdrawalsSum.Decimal,
+			Accruals:  accrualsSum.Decimal.InexactFloat64(),
+			Withdrawn: withdrawalsSum.Decimal.InexactFloat64(),
 		}
 
 		respJSON, err := json.Marshal(result)
